@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyNotes</title>
+    <link rel="stylesheet" href="/assets/notesStyle.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="wait_server">
+        <span class="loader"></span>
+        <span>Carregando seus dados...</span>
+    </div>
+    <div id="container_main">
+        <header id="main_header">
+            <span>
+                <h1>MyNotes</h1> <p>Bem Vindo(a) <span id="user_hello"></span></p>
+            </span>
+
+            <span id="container_addSearch">
+                <div id="add_newNote">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="60px" viewBox="0 -960 960 960" width="60px" fill="#e8eaed">
+                        <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
+                    </svg>
+                </div>
+                <div id="search_note">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="60px" viewBox="0 -960 960 960" width="60px" fill="#e8eaed">
+                        <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/>
+                    </svg>
+                </div>
+            </span>
+        </header>
+
+        <main>
+            <div id="welcome_div">
+                Escreva sua primeira nota!
+                <button id="firstNote_btn" type="button">Criar</button>
+            </div>
+
+            
+        </main>
+
+        <dialog id="addItem" class="dialogStyle">
+            <h2 id="dialog_title">Add new note</h2>
+
+            <form id="main_form">
+                <span id="title_span">
+                    <label for="newNoteTitle">Title:</label>
+                    <input type="text" name="title" id="newNoteTitle" required>
+                </span>
+
+                <span id="notes_span">
+                    <label for="newNoteText">Note:</label>
+                    <textarea name="noteText" id="newNoteText" required>Write here</textarea>
+                </span>
+
+                <span id="dialog_buttonContainer">
+                    <button type="button" class="btn btn-danger" id="cancel_dialog" onclick="leaveModal()">Cancel</button>
+                    <button type="submit" class="btn hidden mainBtn" id="submit_newNote">Submit</button>
+                    <button type="submit" class="btn hidden mainBtn" id="submit_removeNote">DELETE</button>
+                    <button type="submit" class="btn hidden mainBtn" id="submit_editNote">Submit</button>
+                    <div id="dialog_wait" class="hidden">
+                        <span class="loader"></span>    
+                    </div>
+                    
+                </span>
+
+            </form>
+        </dialog>
+    </div>
+
+    <script src="/assets/sucessLogin.js" type="module"></script>
+    <script>
+        // just to close modal
+        function leaveModal() {
+            document.getElementById('addItem').close();
+            Array.from(document.getElementsByClassName('mainBtn')).forEach((node) => {
+                node.classList.add('hidden');
+            });
+            // console.log(document.getElementById('newNoteText').value);
+            // console.log('????')
+            document.getElementById('newNoteText').value = 'Write here';
+            document.getElementById('newNoteTitle').value = '';
+        }
+
+        // to preventdefault from form
+        document.getElementById('main_form').addEventListener('submit', (node) => {
+            node.preventDefault();
+        })
+        
+    </script>
+</body>
+</html>
