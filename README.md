@@ -14,4 +14,6 @@ Em relação a criptografia, somente a senha é criptografada. Será implementad
 - MONGO_URI (Link do banco de dados, criar uma conta gratuita no [Atlas](https://www.mongodb.com/products/platform/atlas-database))
 - tokenSecret (Senha para o token, responsável de manter a sessão do usuário)
 
+Faça as mudanças necessárias na parte server.js, trocando o dbName, para conectar corretamente no seu banco de dados e também no model.js modificando o model para que conecte na sua coleção
+
 Depois disso inicie o programa no terminal com ```npm start``` que vai abrir um servidor local na porta 8080, depois disso abra em um navegador o servidor local http://localhost:8080/

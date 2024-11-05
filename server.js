@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const { User } = require('./Model/model');
 const { createAndSavePerson, hashPassword, findOnePerson, comparePassword, postNote, ediNote, deleteNote} = require('./Model/functions');
 
-mongoose.connect(process.env.MONGO_URI, {dbName: 'noteSite_Users'});
+mongoose.connect(process.env.MONGO_URI, {dbName: 'noteSite_Users'}); // <<<<---- 
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Para tratar formulários

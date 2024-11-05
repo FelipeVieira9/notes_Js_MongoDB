@@ -7,6 +7,6 @@ const userSchema = mongoose.Schema({
     notes: [{title: String, note: String, date: String}]
 })
 
-User = mongoose.model('User', userSchema, 'users');
+User = mongoose.model('User', userSchema, 'users'); // <<<<---- 
 
 module.exports = { User }
