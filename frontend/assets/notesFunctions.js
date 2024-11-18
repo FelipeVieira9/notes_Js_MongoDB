@@ -85,7 +85,60 @@ export const sendNotes = (user) => {
 }
 
 export const deleteNote = async (noteIndex) => {
-    const res = await fetch('/notes/deleteNote', {method: 'PUT', body: JSON.stringify({noteIndex: noteIndex}) ,headers: {'content-type': 'application/json'}})
+    const res = await fetch('/notes/deleteNote', {method: 'PUT', body: JSON.stringify({noteIndex: noteIndex}), headers: {'content-type': 'application/json'}})
     console.log('cade???')
 }
 
+export const searchNote = (str) => {
+    if (typeof(str) !== "string" || (str.length === 0 && typeof(str) === "string")) {
+        return;
+    }
+
+    /*
+    
+    -> 0 Regex Length = 0 Points
+    -> 1 Regex Length = 1 Points
+    -> 2 Regex Length = 2 Points
+    -> ...
+
+    */
+
+    const resultArray = [
+    //   {nodes: ?, points}  
+    ];
+    const regexArrPoints = [
+        // {regex: 'a', points: 0}
+    ]
+    
+    let incrementStr = '';
+
+    for (let i of str) {
+        incrementStr += i;
+        const regex = new RegExp(incrementStr, 'i');
+        
+        regexArrPoints.push({regex: regex, points: incrementStr.length});
+    }
+
+    regexArrPoints.reverse();
+
+    Array.from(document.getElementsByClassName('notes')).forEach((node) => {
+        const nodeTitle = node.children[0].children[0];
+
+        let checkRegex = regexArrPoints.find(({regex}) => regex.test(nodeTitle.textContent));
+
+        if (checkRegex === undefined) {
+            resultArray.push({node: node, points: 0})
+            node.remove();
+            return;
+        }
+
+        resultArray.push({node: node, points: checkRegex.points});
+        node.remove();
+    })
+
+    resultArray.sort(({points: aPoint}, {points: bPoint}) => bPoint - aPoint);
+
+    resultArray.forEach(({node}) => {
+        document.querySelector('main').insertAdjacentElement('beforeend', node);
+    })
+} 

@@ -20,6 +20,8 @@
                 <h1>MyNotes</h1> <p>Bem Vindo(a) <span id="user_hello"></span></p>
             </span>
 
+            <input type="search" id="findNote" class="hidden" placeholder="Write the title of note">
+
             <span id="container_addSearch">
                 <div id="add_newNote">
                     <svg xmlns="http://www.w3.org/2000/svg" height="60px" viewBox="0 -960 960 960" width="60px" fill="#e8eaed">
@@ -90,7 +92,6 @@
         document.getElementById('main_form').addEventListener('submit', (node) => {
             node.preventDefault();
         })
-        
     </script>
 </body>
 </html>

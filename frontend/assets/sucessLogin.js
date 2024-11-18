@@ -4,6 +4,7 @@ let user;
 const dialog_note = document.getElementById('newNoteText');
 const dialog_title = document.getElementById('newNoteTitle');
 let noteIndex;
+let searchBoolean = false;
 
 const loadUserValues = async () => {
     // Getting the user
@@ -81,6 +82,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
 
+        // Search Note
+        document.getElementById('search_note').addEventListener('click', () => myFunc.searchNote());
+
         // Give the button roles
         document.getElementById('submit_newNote').addEventListener('click', async (node) => {
             if (dialog_title.value.length === 0) {
@@ -134,7 +138,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             } catch (error) {
                 console.log(error)
             }
-        })  
+        });
+
+        // Open search input
+
+        document.getElementById('search_note').addEventListener('click', (node) => {
+            if (!searchBoolean) {
+                document.getElementById('findNote').classList.remove('hidden');
+                searchBoolean = true;
+
+                document.getElementById('findNote').focus();
+
+                document.getElementById('findNote').addEventListener('change', (node) => {
+                    myFunc.searchNote(node.target.value);
+                })
+            }
+        })
+        
         
         // If all values from user load, so remove the loading span
         document.getElementById('wait_server').style.opacity = '0';

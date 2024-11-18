@@ -10,6 +10,10 @@
     --header-height: 90px;
 }
 
+body {
+    overflow-x: hidden;
+}
+
 .loader {
     width: 48px;
     height: 48px;
@@ -84,13 +88,13 @@
 }
 
 #add_newNote, #search_note{
+    width: 60px;
     border: 1px solid black;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 1px 1px 1px 1px;
-    transition: box-shadow;
-    transition-duration: 500ms;
+    transition: box-shadow 500ms;
     cursor: pointer;
 
     & > svg {
@@ -102,6 +106,19 @@
 #add_newNote:hover, #search_note:hover {
     box-shadow: 5px 5px 2px 2px;
     /* padding-top: -10px; */
+}
+
+#search_note {
+    justify-content: space-between;
+    flex-direction: row-reverse;
+    transition: box-shadow 500ms;
+    /* transition-duration: 2s; */
+}
+
+#findNote {
+    border: 1px solid #ff9800;
+    border-radius: 5px;
+    padding: 10px;
 }
 
 #container_addSearch {
