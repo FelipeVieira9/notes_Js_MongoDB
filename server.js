@@ -57,12 +57,18 @@ app.get('/checkLogin', (req, res, next) => {
 
     comparePassword(login, password).then(async () => {
         try {
-            const user = await findOnePerson({login: login});
+            await findOnePerson({login: login}); // Verificar se existe o usuário;
+            const user = {login: login, password: password} // 
+            console.log(user);
             
-            const token = jwt.sign(user.toJSON(), process.env.tokenSecret, { expiresIn: '1h' });
+            const token = jwt.sign(user, process.env.tokenSecret, { expiresIn: '1h' });
             res.cookie('token', token, {
                 httpOnly: true
             })
+            console.log(token)
+            const test = jwt.verify(token, process.env.tokenSecret);
+            console.log("valor do token");
+            console.log(test);
 
             res.redirect('/notes');
         } catch (error) {
@@ -81,6 +87,9 @@ app.get('/checkLogin', (req, res, next) => {
 
 app.get('/notes', (req, res, next) => {
     const token = req.cookies.token;
+    console.log('/notes');
+    console.log(token);
+
 
     try {
         const user = jwt.verify(token, process.env.tokenSecret);
@@ -88,7 +97,7 @@ app.get('/notes', (req, res, next) => {
     } catch (error) {
         console.log("acesso negado");
         res.clearCookie("token");
-        res.redirect('/');
+        // res.redirect('/');
     }
 })
 
@@ -164,8 +173,9 @@ app.put('/notes/editNote', async (req, res, next) => {
 
     // Verificar se o token é valido e remover ele
     try {
-        user = jwt.verify(tokenOld, process.env.tokenSecret);
-        // console.log(user);
+        const userSession = jwt.verify(tokenOld, process.env.tokenSecret);
+        user = await findOnePerson({login: userSession.login});
+
     } catch (error) {
         console.log(error);
         res.clearCookie("token");
@@ -177,8 +187,8 @@ app.put('/notes/editNote', async (req, res, next) => {
     // post note e criar token atualizado
     try {
         await ediNote(user.login, title, note, index);
-        user = await findOnePerson({login: user.login});
-        const token = jwt.sign(user.toJSON(), process.env.tokenSecret, { expiresIn: '1h' });
+        const newUserSession = {login: user.login, password: user.password} // ;
+        const token = jwt.sign(newUserSession, process.env.tokenSecret, { expiresIn: '1h' });
         res.clearCookie("token");
         res.cookie('token', token, {
             httpOnly: true
@@ -186,6 +196,7 @@ app.put('/notes/editNote', async (req, res, next) => {
         console.log("atualizado token");
         next();
     } catch (error) {
+        console.log(error);
         res.status(401);
     }
 })
@@ -225,15 +236,21 @@ app.put('/notes/deleteNote', async (req, res, next) => {
     }
 })
 
-app.get('/notes/user', (req, res, next) => {
+app.get('/notes/user', async (req, res, next) => {
     const token = req.cookies.token;
+    console.log(token);
+    console.log('/notes/user -> Iniciado');
 
     try {
-        const user = jwt.verify(token,  process.env.tokenSecret);
-        req.user = user;
+        const userSession = jwt.verify(token,  process.env.tokenSecret); // Token verificar
+        
+        const user = await findOnePerson({login: userSession.login});
 
-        res.json(req.user);
+        res.json(user);
+        console.log('/notes/user -> Finalizado SEM erros');
     } catch (error) {
+        console.log('/notes/user -> Finalizado COM erros');
+        console.log(error);
         res.clearCookie("token");
         res.redirect('/');
     }

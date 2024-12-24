@@ -1,3 +1,144 @@
+const CommonFormatText = (str) => {
+    let stop = false;
+
+    while(!stop) {
+    let formatedStr;
+
+    if (/\*{2}[\w0-9À-ú\s]+\*{2}/.test(str)) {
+            str = str.replace(/\*{2}[\w0-9À-ú\s]+\*{2}/, (removed) => {
+                formatedStr = "<strong>" + removed.replace(/^\*{2}|\*{2}$/g, '') + "</strong>";
+                return formatedStr; 
+            })
+            continue;
+        } 
+        else if (/_{2}[\w0-9À-ú\s]+_{2}/.test(str)) {
+            str = str.replace(/_{2}[\w0-9À-ú\s]+_{2}/, (removed) => {
+                formatedStr = "<em>" + removed.replace(/^_{2}|_{2}$/g, '') + "</em>";
+                return formatedStr; 
+            })
+            continue;
+        }
+
+        stop = true;
+    }
+    
+
+    return str;
+}
+
+export const formatText = (txt) => {
+    const txtArr = txt.split(/(\n)/g);
+    console.log(txtArr);
+    let HTML = '';
+
+    txtArr.forEach((str, i) => {
+        // Possivel bug, pode existir algum if q deveria entrar e nao entrou
+        str = CommonFormatText(str);
+
+        if (/^(#[^#])/.test(str)) {
+            HTML += `<span class="format_h1">${str.replace(/^(#{1})/, '')}</span>`;
+        } else if (/(\n)/.test(str)) {
+             // Verificar se na frente é uma lista
+             if (!(/^\*/.test(txtArr[i - 1]) && /^\*/.test(txtArr[i + 1]))) {
+                HTML += "<br>"
+             }
+            
+        } else if (/^(#{2}[^#])/.test(str)) {
+            HTML += `<span class="format_h2">${str.replace(/^(#{2})/, '')}</span>`;
+        } else if (/^(#{3})/.test(str)) {
+            HTML += `<span class="format_h3">${str.replace(/^(#{3})/, '')}</span>`;
+        } else if (/(\[.+\]\(.+\))/.test(str)) { ///(!\[[\w0-9À-ú]+\]\([\w0-9:]+\))/
+            if (/(!\[.+\]\(.+\))/.test(str)) { // Caso Imagem
+            let strClone = str.split(/(!\[.+\]\(.+\))/);
+            console.log("ENTROU");
+            console.log(strClone)
+            
+
+
+            strClone.forEach((txt, i) => {
+                if (/(!\[.+\]\(.+\))/.test(txt)) {
+                    let linkTxt;
+                    let linkLocalization;
+
+                    strClone[i].replace(/(^!\[.+\])/, (copy) => {
+                        linkTxt = copy.replace(/!|\[|\]/g, '');
+                        return '';
+                    })
+
+                    strClone[i].replace(/(\(.+\)$)/, (copy) => {
+                        linkLocalization = copy.replace(/\(|\)/g, '');
+                        return '';
+                    })
+                    linkTxt = `<img src="${linkLocalization}" alt='${linkTxt}' class='user_image'></img>`;
+                    console.log("DEVO ENTRAR SOMENTE UMA VEZ")
+                    console.log(linkTxt);
+                    strClone[i] = linkTxt;
+                } 
+                
+                // else if (!/^<span>/.test(txt) && !/^ /.test(txt)) {
+                //     console.log("Cccc")
+                //     strClone[i] = `<span>${strClone[i]}</span>`;
+                // }
+            })
+            strClone = strClone.join('');
+            str = strClone
+            console.log("SAIU");
+            console.log(strClone);
+            // HTML += strClone;
+            // console.log(HTML);
+
+
+            }
+            if (/(\[.+\]\(.+\))/.test(str)) {
+                // Caso link
+            let strClone = str.split(/(\[.+\]\(.+\))/);
+
+
+            strClone.forEach((txt, i) => { // COLOCAR SPAN DE ALGUMA FORMA NOS TEXTOS SEM FORMATACAO
+                if (/(\[.+\]\(.+\))/.test(txt)) {
+                    let linkTxt;
+                    let linkLocalization;
+
+                    strClone[i].replace(/(^\[.+\])/, (copy) => {
+                        linkTxt = copy.replace(/\[|\]/g, '');
+                        return '';
+                    })
+
+                    strClone[i].replace(/(\(.+\)$)/, (copy) => {
+                        linkLocalization = copy.replace(/\(|\)/g, '');
+                        return '';
+                    })
+                    linkTxt = `<a href="${linkLocalization}" target='_blank'>` + linkTxt + '</a>';
+                    // console.log(linkTxt, linkLocalization);
+                    strClone[i] = linkTxt;
+                    // console.log(`Meu resultado: ${strClone}}`);
+                } 
+                
+                // else if (!/^<span>/.test(txt) && !/^ /.test(txt)) {
+                //     console.log("Cccc")
+                //     strClone[i] = `<span>${strClone[i]}</span>`;
+                // }
+            })
+            strClone = strClone.join('');
+            // txtArr[i] = strClone;
+            str = strClone
+            } 
+            HTML += str;
+        } else if (/^\*/.test(str)) {
+            let strClone;
+            strClone = str.replace(/^\*/, ''); 
+            strClone = `<ul class='user_list'><li>${strClone}</li></ul>`;
+            HTML += strClone;
+
+        } else if (str.length) {
+            HTML += `<span>${str}</span>`;
+        }
+    })
+
+    console.log(HTML);
+    return HTML;
+}
+
 /**
  * @async
  * @returns the user object
@@ -55,6 +196,8 @@ export const sendNotes = (user) => {
 
         let i = 0;
         user.notes.forEach(({title, note, date}) => {
+            const formatedNote = formatText(note);
+            console.log(formatedNote);
             let HTML = `
             <article id="note_${i}" class="notes">
                 <header>
@@ -73,9 +216,9 @@ export const sendNotes = (user) => {
                         </div>
                     </span>
                 </header>
-                <p class="note_text" id="note_text_${i}">
-                    ${note}
-                </p>
+                <div class="note_text" id="note_text_${i}">
+                    ${formatedNote}
+                </div>
             </article>`;
 
             document.querySelector('main').insertAdjacentHTML('beforeend', HTML);
@@ -86,7 +229,6 @@ export const sendNotes = (user) => {
 
 export const deleteNote = async (noteIndex) => {
     const res = await fetch('/notes/deleteNote', {method: 'PUT', body: JSON.stringify({noteIndex: noteIndex}), headers: {'content-type': 'application/json'}})
-    console.log('cade???')
 }
 
 export const searchNote = (str) => {

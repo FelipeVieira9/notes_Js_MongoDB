@@ -1,6 +1,6 @@
 import * as myFunc from "/assets/notesFunctions.js";
 // export default myFunc.createNewNote()
-let user;
+// let user;
 const dialog_note = document.getElementById('newNoteText');
 const dialog_title = document.getElementById('newNoteTitle');
 let noteIndex;
@@ -8,60 +8,89 @@ let searchBoolean = false;
 
 const loadUserValues = async () => {
     // Getting the user
-    user = await myFunc.getUser();
+    let user = await myFunc.getUser(); //Posso salvar em uma variável global? é errado? não sei...
 
     // Send notes
     myFunc.sendNotes(user);
 
     // Sending user wellcome
     document.getElementById('user_hello').textContent = user.login;
+
+    return user;
 }
 
-const reloadUserValues = async () => {
-    // loading...
-    document.getElementById('wait_server').style.display = 'block';
-    document.getElementById('container_main').style.display = 'none';
+// const reloadUserValues = async () => {
+//     // loading...
+//     document.getElementById('wait_server').style.display = 'block';
+//     document.getElementById('container_main').style.display = 'none';
 
-    // Getting the user again
-    user = await myFunc.getUser();
+//     // Getting the user again
+//     user = await myFunc.getUser(); // Posso salvar em uma variável global? é errado? não sei...
 
-    // Send notes
-    myFunc.sendNotes(user);
+//     // Send notes
+//     myFunc.sendNotes(user);
 
-    // If all values from user load, so remove the loading span
-    document.getElementById('wait_server').style.display = 'none';
-    document.getElementById('container_main').style.display = 'block';
-}
+//     // If all values from user load, so remove the loading span
+//     document.getElementById('wait_server').style.display = 'none';
+//     document.getElementById('container_main').style.display = 'block';
+// }
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        await loadUserValues();
+        let user = await loadUserValues();
 
         // Add note
         document.getElementById('firstNote_btn').addEventListener('click', (node) => {
             document.getElementById('submit_newNote').classList.toggle('hidden');
             document.getElementById('dialog_title').textContent = 'Add new note';
             document.getElementById('addItem').showModal();
+            document.getElementById('newNoteText').value = 
+            `
+            Formattings (Some of them is only applied in a new line):
+            # -> Strong title
+            ##, ### -> Less strong title
+            ** Something ** -> Emphasis
+            __ Something __ -> Italic
+            [Something](URL) -> Link
+            ![Something](URL) -> Image
+            * -> List
+            `;
+            document.getElementById('newNoteTitle').value = '';
         })
 
         document.getElementById('add_newNote').addEventListener('click', (node) => {
             document.getElementById('submit_newNote').classList.toggle('hidden');
             document.getElementById('dialog_title').textContent = 'Add new note';
             document.getElementById('addItem').showModal();
+            document.getElementById('newNoteText').value = ''
+            document.getElementById('newNoteText').placeholder = 
+            `
+            Formattings (Some of them is only applied in a new line):
+            # -> Strong title
+            ##, ### -> Less strong title
+            ** Something ** -> Emphasis
+            __ Something __ -> Italic
+            [Something](URL) -> Link
+            ![Something](URL) -> Image
+            * -> List
+            `;
+            document.getElementById('newNoteTitle').value = '';
         })
 
         // Edit Note
-        Array.from(document.getElementsByClassName('editNote')).forEach((node) => {
+        Array.from(document.getElementsByClassName('editNote')).forEach((node, i) => {
             node.addEventListener('click', () => {
                 document.getElementById('submit_editNote').classList.toggle('hidden');
                 document.getElementById('dialog_title').textContent = 'Edit Note';
                 document.getElementById('addItem').showModal();
 
                 noteIndex = node.id.replace(/(editNote_)/, '');
-                console.log(noteIndex)
+                // console.log(noteIndex)
                 // console.log(document.getElementById(`note_text_${noteIndex}`).textContent)
-                
-                document.getElementById('newNoteText').value = document.getElementById(`note_text_${noteIndex}`).textContent.replace(/^\s*/, '');
+                let noFormated = user.notes[i].note;
+                let formatedTxt = myFunc.formatText(noFormated);
+                console.log(formatedTxt);
+                document.getElementById('newNoteText').value = noFormated;
                 document.getElementById('newNoteTitle').value = document.getElementById(`noteTitle_${noteIndex}`).textContent;
             });
         });
