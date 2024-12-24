@@ -44,7 +44,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('submit_newNote').classList.toggle('hidden');
             document.getElementById('dialog_title').textContent = 'Add new note';
             document.getElementById('addItem').showModal();
-            document.getElementById('newNoteText').value = 
+            document.getElementById('newNoteText').value = ''
+            document.getElementById('newNoteText').placeholder = 
             `
             Formattings (Some of them is only applied in a new line):
             # -> Strong title
