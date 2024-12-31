@@ -5,7 +5,8 @@ let mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const { User } = require('./Model/model');
-const { createAndSavePerson, hashPassword, findOnePerson, comparePassword, postNote, ediNote, deleteNote} = require('./Model/functions');
+const { createAndSavePerson, hashPassword, findOnePerson, comparePassword, postNote, ediNote, deleteNote, encrypt, decrypt} = require('./Model/functions');
+const crypto = require('crypto');
 
 mongoose.connect(process.env.MONGO_URI, {dbName: 'noteSite_Users'}); // <<<<---- 
 
@@ -141,7 +142,8 @@ app.put('/notes/addNote', async (req, res, next) => {
 
     // post note e criar token atualizado
     try {
-        await postNote(user.login, title, note, date);
+        const {encrypted_note, encrypted_title, iv} = encrypt(title, note, crypto.randomBytes(16));
+        await postNote(user.login, encrypted_title, encrypted_note, date, iv);
         user = await findOnePerson({login: user.login});
         const token = jwt.sign(user.toJSON(), process.env.tokenSecret, { expiresIn: '1h' });
         res.clearCookie("token");
@@ -151,6 +153,8 @@ app.put('/notes/addNote', async (req, res, next) => {
         console.log("atualizado token");
         next();
     } catch (error) {
+        console.log("MORREU");
+        console.log(error);
         res.status(401);
     }
 })
@@ -245,7 +249,12 @@ app.get('/notes/user', async (req, res, next) => {
         const userSession = jwt.verify(token,  process.env.tokenSecret); // Token verificar
         
         const user = await findOnePerson({login: userSession.login});
-
+        user.notes.forEach(({title, note, iv}, i) => {
+            title = decrypt(title, iv); // TEM UNS Q N TEM IV
+            note = decrypt(note, iv);
+            user.notes[i].title = title;
+            user.notes[i].note = note;
+        })
         res.json(user);
         console.log('/notes/user -> Finalizado SEM erros');
     } catch (error) {
