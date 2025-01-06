@@ -69,7 +69,6 @@ app.get('/checkLogin', (req, res, next) => {
             console.log(token)
             const test = jwt.verify(token, process.env.tokenSecret);
             console.log("valor do token");
-            console.log(test);
 
             res.redirect('/notes');
         } catch (error) {
@@ -89,7 +88,6 @@ app.get('/checkLogin', (req, res, next) => {
 app.get('/notes', (req, res, next) => {
     const token = req.cookies.token;
     console.log('/notes');
-    console.log(token);
 
 
     try {
@@ -98,20 +96,8 @@ app.get('/notes', (req, res, next) => {
     } catch (error) {
         console.log("acesso negado");
         res.clearCookie("token");
-        // res.redirect('/');
     }
 })
-
-// app.post('/notes/decryptNotes', (req, res, next) => {
-//     const token = req.cookies.token;
-
-//     try {
-//         const user = jwt.verify(token, process.env.tokenSecret);
-//     } catch (error) {
-//         res.clearCookie("token");
-//         res.redirect('/');
-//     }
-// })
 
 app.put('/notes/addNote', async (req, res, next) => {
     console.log('Recebido na rota notes/addNote')
@@ -128,7 +114,7 @@ app.put('/notes/addNote', async (req, res, next) => {
 
     let user;
 
-    // Verificar se o token é valido e remover ele
+    // Check Token
     try {
         user = jwt.verify(tokenOld, process.env.tokenSecret);
         console.log(user);
@@ -140,7 +126,8 @@ app.put('/notes/addNote', async (req, res, next) => {
         return;
     }
 
-    // post note e criar token atualizado
+    // Put note
+    // Create new token
     try {
         const {encrypted_note, encrypted_title, iv} = encrypt(title, note, crypto.randomBytes(16));
         await postNote(user.login, encrypted_title, encrypted_note, date, iv);
@@ -153,7 +140,6 @@ app.put('/notes/addNote', async (req, res, next) => {
         console.log("atualizado token");
         next();
     } catch (error) {
-        console.log("MORREU");
         console.log(error);
         res.status(401);
     }
@@ -168,14 +154,9 @@ app.put('/notes/editNote', async (req, res, next) => {
         res.status(401).redirect('/notes');
         return;
     }
-
-    // console.log(req.body)
-
-    // console.log(`title: ${title}, note: ${note}`);
-
     let user;
 
-    // Verificar se o token é valido e remover ele
+    // Check token
     try {
         const userSession = jwt.verify(tokenOld, process.env.tokenSecret);
         user = await findOnePerson({login: userSession.login});
@@ -188,7 +169,8 @@ app.put('/notes/editNote', async (req, res, next) => {
         return;
     }
 
-    // post note e criar token atualizado
+    // Put note
+    // Create new token
     try {
         await ediNote(user.login, title, note, index);
         const newUserSession = {login: user.login, password: user.password} // ;
@@ -212,7 +194,7 @@ app.put('/notes/deleteNote', async (req, res, next) => {
 
     let user;
 
-    // Verificar se o token é valido e remover ele
+    // Check Token
     try {
         user = jwt.verify(tokenOld, process.env.tokenSecret);
     } catch (error) {
@@ -223,9 +205,9 @@ app.put('/notes/deleteNote', async (req, res, next) => {
         return;
     }
 
-    // post note e criar token atualizado
+    // Put note
+    // Create new token
     try {
-        // await ediNote(user.login, title, note, index); <<--
         user = await findOnePerson({login: user.login});
         await deleteNote(user, noteIndex);
         const token = jwt.sign(user.toJSON(), process.env.tokenSecret, { expiresIn: '1h' });
@@ -242,15 +224,14 @@ app.put('/notes/deleteNote', async (req, res, next) => {
 
 app.get('/notes/user', async (req, res, next) => {
     const token = req.cookies.token;
-    console.log(token);
     console.log('/notes/user -> Iniciado');
 
     try {
-        const userSession = jwt.verify(token,  process.env.tokenSecret); // Token verificar
+        const userSession = jwt.verify(token,  process.env.tokenSecret);
         
         const user = await findOnePerson({login: userSession.login});
         user.notes.forEach(({title, note, iv}, i) => {
-            title = decrypt(title, iv); // TEM UNS Q N TEM IV
+            title = decrypt(title, iv);
             note = decrypt(note, iv);
             user.notes[i].title = title;
             user.notes[i].note = note;

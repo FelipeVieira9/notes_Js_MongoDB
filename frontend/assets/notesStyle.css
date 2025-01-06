@@ -1,7 +1,5 @@
 * {
     box-sizing: border-box;
-    /* min-width: 100vw;
-    min-height: 100vh; */
     margin: 0;
     font-family: 'Open Sans', 'Courier New', Courier, monospace;
 }
@@ -74,7 +72,6 @@ body {
     justify-content: space-between;
 
     & h1 {
-        /* font-weight: 400; */
         margin-right: 50px;
     }
 
@@ -105,14 +102,12 @@ body {
 
 #add_newNote:hover, #search_note:hover {
     box-shadow: 5px 5px 2px 2px;
-    /* padding-top: -10px; */
 }
 
 #search_note {
     justify-content: space-between;
     flex-direction: row-reverse;
     transition: box-shadow 500ms;
-    /* transition-duration: 2s; */
 }
 
 #findNote {
@@ -283,7 +278,3 @@ main {
     display: block;
     margin:  0 auto;
 }
-
-/* .user_list {
-    margin: 0;
-} */

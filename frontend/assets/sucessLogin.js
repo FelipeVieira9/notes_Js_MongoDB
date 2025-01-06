@@ -1,6 +1,4 @@
 import * as myFunc from "/assets/notesFunctions.js";
-// export default myFunc.createNewNote()
-// let user;
 const dialog_note = document.getElementById('newNoteText');
 const dialog_title = document.getElementById('newNoteTitle');
 let noteIndex;
@@ -8,7 +6,7 @@ let searchBoolean = false;
 
 const loadUserValues = async () => {
     // Getting the user
-    let user = await myFunc.getUser(); //Posso salvar em uma variável global? é errado? não sei...
+    let user = await myFunc.getUser();
 
     // Send notes
     myFunc.sendNotes(user);
@@ -18,22 +16,6 @@ const loadUserValues = async () => {
 
     return user;
 }
-
-// const reloadUserValues = async () => {
-//     // loading...
-//     document.getElementById('wait_server').style.display = 'block';
-//     document.getElementById('container_main').style.display = 'none';
-
-//     // Getting the user again
-//     user = await myFunc.getUser(); // Posso salvar em uma variável global? é errado? não sei...
-
-//     // Send notes
-//     myFunc.sendNotes(user);
-
-//     // If all values from user load, so remove the loading span
-//     document.getElementById('wait_server').style.display = 'none';
-//     document.getElementById('container_main').style.display = 'block';
-// }
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -86,11 +68,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('addItem').showModal();
 
                 noteIndex = node.id.replace(/(editNote_)/, '');
-                // console.log(noteIndex)
-                // console.log(document.getElementById(`note_text_${noteIndex}`).textContent)
                 let noFormated = user.notes[i].note;
                 let formatedTxt = myFunc.formatText(noFormated);
-                console.log(formatedTxt);
                 document.getElementById('newNoteText').value = noFormated;
                 document.getElementById('newNoteTitle').value = document.getElementById(`noteTitle_${noteIndex}`).textContent;
             });
@@ -171,7 +150,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         // Open search input
-
         document.getElementById('search_note').addEventListener('click', (node) => {
             if (!searchBoolean) {
                 document.getElementById('findNote').classList.remove('hidden');

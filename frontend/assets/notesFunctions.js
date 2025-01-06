@@ -1,3 +1,8 @@
+/**
+ * This fuction format the text with common formatts, like itallic, before the function formatText start
+ * @param {string} str 
+ * @returns {string}
+ */
 const CommonFormatText = (str) => {
     let stop = false;
 
@@ -22,13 +27,16 @@ const CommonFormatText = (str) => {
         stop = true;
     }
     
-
     return str;
 }
 
+/**
+ * This function takes a text and format for each new line
+ * @param {string} txt the text going to get formatted
+ * @returns {string} formatted text 
+ */
 export const formatText = (txt) => {
     const txtArr = txt.split(/(\n)/g);
-    console.log(txtArr);
     let HTML = '';
 
     txtArr.forEach((str, i) => {
@@ -38,7 +46,6 @@ export const formatText = (txt) => {
         if (/^(#[^#])/.test(str)) {
             HTML += `<span class="format_h1">${str.replace(/^(#{1})/, '')}</span>`;
         } else if (/(\n)/.test(str)) {
-             // Verificar se na frente é uma lista
              if (!(/^\*/.test(txtArr[i - 1]) && /^\*/.test(txtArr[i + 1]))) {
                 HTML += "<br>"
              }
@@ -47,13 +54,9 @@ export const formatText = (txt) => {
             HTML += `<span class="format_h2">${str.replace(/^(#{2})/, '')}</span>`;
         } else if (/^(#{3})/.test(str)) {
             HTML += `<span class="format_h3">${str.replace(/^(#{3})/, '')}</span>`;
-        } else if (/(\[.+\]\(.+\))/.test(str)) { ///(!\[[\w0-9À-ú]+\]\([\w0-9:]+\))/
-            if (/(!\[.+\]\(.+\))/.test(str)) { // Caso Imagem
+        } else if (/(\[.+\]\(.+\))/.test(str)) {
+            if (/(!\[.+\]\(.+\))/.test(str)) {
             let strClone = str.split(/(!\[.+\]\(.+\))/);
-            console.log("ENTROU");
-            console.log(strClone)
-            
-
 
             strClone.forEach((txt, i) => {
                 if (/(!\[.+\]\(.+\))/.test(txt)) {
@@ -70,31 +73,16 @@ export const formatText = (txt) => {
                         return '';
                     })
                     linkTxt = `<img src="${linkLocalization}" alt='${linkTxt}' class='user_image'></img>`;
-                    console.log("DEVO ENTRAR SOMENTE UMA VEZ")
-                    console.log(linkTxt);
                     strClone[i] = linkTxt;
                 } 
-                
-                // else if (!/^<span>/.test(txt) && !/^ /.test(txt)) {
-                //     console.log("Cccc")
-                //     strClone[i] = `<span>${strClone[i]}</span>`;
-                // }
             })
             strClone = strClone.join('');
             str = strClone
-            console.log("SAIU");
-            console.log(strClone);
-            // HTML += strClone;
-            // console.log(HTML);
-
-
             }
             if (/(\[.+\]\(.+\))/.test(str)) {
-                // Caso link
             let strClone = str.split(/(\[.+\]\(.+\))/);
 
-
-            strClone.forEach((txt, i) => { // COLOCAR SPAN DE ALGUMA FORMA NOS TEXTOS SEM FORMATACAO
+            strClone.forEach((txt, i) => {
                 if (/(\[.+\]\(.+\))/.test(txt)) {
                     let linkTxt;
                     let linkLocalization;
@@ -109,18 +97,10 @@ export const formatText = (txt) => {
                         return '';
                     })
                     linkTxt = `<a href="${linkLocalization}" target='_blank'>` + linkTxt + '</a>';
-                    // console.log(linkTxt, linkLocalization);
                     strClone[i] = linkTxt;
-                    // console.log(`Meu resultado: ${strClone}}`);
                 } 
-                
-                // else if (!/^<span>/.test(txt) && !/^ /.test(txt)) {
-                //     console.log("Cccc")
-                //     strClone[i] = `<span>${strClone[i]}</span>`;
-                // }
             })
             strClone = strClone.join('');
-            // txtArr[i] = strClone;
             str = strClone
             } 
             HTML += str;
@@ -135,20 +115,17 @@ export const formatText = (txt) => {
         }
     })
 
-    console.log(HTML);
     return HTML;
 }
 
 /**
- * @async
- * @returns the user object
+ * @returns {Promise} the user object
  */
 export const getUser = async () => {
     try {
         const res = await fetch('http://localhost:8080/notes/user');
         const data = res.json();
 
-        // console.log(data);
         return data
     } catch (error) {
         console.log(`Error inesperado: ${error}`);
@@ -166,14 +143,18 @@ export const createNewNote = async (title, note) => {
         const dia = new Date().getDate();
         const ano = new Date().getFullYear();
         const res = await fetch('/notes/addNote', {method: 'PUT', body: JSON.stringify({title: title, note: note, date: `${dia}/${mes}/${ano}`}), headers: {'content-type': 'application/json'} });
-        // const data = await res.json();
-        console.log(data);
-        console.log('sucesso');
     } catch (error) {
         console.log(error);
     }
 }
 
+/**
+ * Make a put requisition to edit note 
+ * @param {string} title 
+ * @param {string} note 
+ * @param {string} index The position of the note
+ * @returns {Promise} 
+ */
 export const editNote = async (title, note, index) => {
     try {
         const res = await fetch('/notes/editNote', {method: 'PUT', body: JSON.stringify({title: title, note: note, index: index}), headers: {'content-type': 'application/json'}});
@@ -189,9 +170,7 @@ export const editNote = async (title, note, index) => {
 export const sendNotes = (user) => {
     console.log(user);
     if (user.notes.length === 0) {
-        // console.log('vazio');
     } else {
-        // console.log('nao vazio');
         document.getElementById('welcome_div').style.display = 'none';
 
         let i = 0;
@@ -227,10 +206,18 @@ export const sendNotes = (user) => {
     }
 }
 
+/**
+ * Make a put requisition to delete the note in the specified index
+ * @param {number} noteIndex 
+ */
 export const deleteNote = async (noteIndex) => {
     const res = await fetch('/notes/deleteNote', {method: 'PUT', body: JSON.stringify({noteIndex: noteIndex}), headers: {'content-type': 'application/json'}})
 }
 
+/**
+ * This function rearranges the notes to the specified search string name
+ * @param {string} str The note title name to search 
+ */
 export const searchNote = (str) => {
     if (typeof(str) !== "string" || (str.length === 0 && typeof(str) === "string")) {
         return;
@@ -249,7 +236,7 @@ export const searchNote = (str) => {
     //   {nodes: ?, points}  
     ];
     const regexArrPoints = [
-        // {regex: 'a', points: 0}
+    // {regex: 'a', points: 0}
     ]
     
     let incrementStr = '';

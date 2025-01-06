@@ -2,11 +2,22 @@ const { hash, compare } = require('bcrypt');
 const { User } = require('./model');
 require('dotenv').config({path: '../.env'});
 
+/**
+ * This function take the password and encrypt via Hash (one-way)
+ * @param {string} password - The password going to be Hashed
+ * @return {Promise} Hashed password
+ */
 const hashPassword = async (password) => {
     const hashPass = await hash(password, 8);
     return hashPass;
 }
 
+/**
+ * (POST) -> This function try to make a new person to save on mongoDB
+ * @param {string} login
+ * @param {string} password
+ * @returns {Promise} Return the user object
+ */
 const createAndSavePerson = async ({login, password}) => {
     // Minimum eight characters, at least one letter and one number:
     // "^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
@@ -18,7 +29,7 @@ const createAndSavePerson = async ({login, password}) => {
         throw "Login inválido"
     }
     
-    let user = await new User({login: login, password: await hashPassword(password)});
+    let user = await new User({login: login, password: hashPassword(password)});
     let loginExist = await User.findOne({login: login}).exec();
 
     if (loginExist) {
@@ -30,18 +41,39 @@ const createAndSavePerson = async ({login, password}) => {
 
     return user;
 }
-
+/**
+ * Search for the user with login string and return the user
+ * @param {string} login 
+ * @returns {Promise} The User found in the database
+ */
 const findOnePerson = async ({login}) => {
     return await User.findOne({login: login}).exec();
 }
 
+/**
+ * (PUT) -> This function put a new note on mongoDB on the user with the same login
+ * @param {string} login 
+ * @param {string} title 
+ * @param {string} note 
+ * @param {string} date 
+ * @param {string} iv 
+ * @returns {Promise}
+ */
 const postNote = async (login, title, note, date, iv) => {
     const user = await findOnePerson({login: login});
 
     user.notes.push({title: title, note: note, date: date, iv: iv});
-    await user.save();
+    return await user.save();
 }
 
+/**
+ * (PUT) -> This function edit the note on the user with the same login 
+ * @param {string} login 
+ * @param {string} title 
+ * @param {string} note 
+ * @param {string} index 
+ * @returns {Promise}
+ */
 const ediNote = async (login, title, note, index) => {
     const user = await findOnePerson({login: login});
     const {encrypted_note, encrypted_title, iv} = encrypt(title, note, crypto.randomBytes(16));
@@ -52,10 +84,25 @@ const ediNote = async (login, title, note, index) => {
     await user.save();
 }
 
+/**
+ * (PUT) -> This function remove the note using their index
+ * @param {string} user 
+ * @param {number} index 
+ * @returns {Promise}
+ */
 const deleteNote = async (user, index) => {
     user.notes.splice(index, 1);
     await user.save();
 }
+
+/**
+ * This function compare the password in the database with the login
+ * @param {string} login 
+ * @param {string} password 
+ * @returns {Promise}
+ * @throws Error if login doesn't exist
+ * @throws Error if password is wrong
+ */
 const comparePassword = async (login, password) => {
     const user = await findOnePerson({login: login});
     if (!user) {
@@ -70,7 +117,16 @@ const comparePassword = async (login, password) => {
 }
 
 const crypto = require('crypto');
+const { default: mongoose, Query } = require('mongoose');
 
+/**
+ * This function is a two-way encrypt, uses title and note to encrypt
+ * using the iv vector and a hidden key in .env
+ * @param {string} title 
+ * @param {string} note 
+ * @param {Buffer} iv 
+ * @returns {object}
+ */
 const encrypt = (title, note, iv) => {
     const alg = process.env.alg;
     // console.log(`Valor enviado: ${text}`);
@@ -88,6 +144,12 @@ const encrypt = (title, note, iv) => {
     return {encrypted_title: encrypted_1.toString('hex'), encrypted_note: encrypted_2.toString('hex'), iv: iv}
 }
 
+/**
+ * Reverse the encrypt
+ * @param {string} encrypted 
+ * @param {Buffer} iv 
+ * @returns {string}
+ */
 const decrypt = (encrypted, iv) => {
     const alg = process.env.alg;
     const decipher = crypto.createDecipheriv(alg, Buffer.from(process.env.encryptSecret), iv);
