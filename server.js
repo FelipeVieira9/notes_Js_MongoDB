@@ -5,7 +5,7 @@ let mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const { User } = require('./Model/model');
-const { createAndSavePerson, hashPassword, findOnePerson, comparePassword, postNote, ediNote, deleteNote, encrypt, decrypt} = require('./Model/functions');
+const { createAndSavePerson, hashPassword, findOnePerson, comparePassword, postNote, ediNote, deleteNote, encrypt, decrypt, deleteThisPerson} = require('./Model/functions');
 const crypto = require('crypto');
 
 mongoose.connect(process.env.MONGO_URI, {dbName: 'noteSite_Users'}); // <<<<---- 
@@ -245,6 +245,37 @@ app.get('/notes/user', async (req, res, next) => {
         res.redirect('/');
     }
 })
+
+app.delete('/notes/delete', async (req, res, next) => {
+    console.log('/notes/delete -> INICIADO');
+    console.log('Deletando conta...');
+
+    const tokenOld = req.cookies.token;
+    let user;
+
+    try {
+        user = jwt.verify(tokenOld, process.env.tokenSecret);
+        console.log(`Tentando deletar usuário com o login: ${user.login}`)
+        user = await deleteThisPerson(user.login);
+        console.log(user);
+        if (user.deletedCount === 0) {
+            console.log('conta não deletada??')
+            next();
+            return;
+        }  
+        res.status(200).json({ message: 'Nota deletada com sucesso' });
+        console.log('Conta deletada');
+        next();
+
+    } catch (error) {
+        console.log(error);
+        res.clearCookie("token");
+        res.status(401);
+        next();
+        return;
+    }
+
+}) 
 
 app.listen("8080", () => {
     console.log("Server running on port 8080");

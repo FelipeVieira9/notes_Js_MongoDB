@@ -278,3 +278,14 @@ main {
     display: block;
     margin:  0 auto;
 }
+
+#user_hello_p {
+    position: relative;
+}
+
+#delete_forever_svg {
+    position: absolute;
+    bottom: 0;
+    cursor: pointer;
+}
+

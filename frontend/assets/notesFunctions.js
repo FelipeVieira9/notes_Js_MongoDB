@@ -176,7 +176,6 @@ export const sendNotes = (user) => {
         let i = 0;
         user.notes.forEach(({title, note, date}) => {
             const formatedNote = formatText(note);
-            console.log(formatedNote);
             let HTML = `
             <article id="note_${i}" class="notes">
                 <header>

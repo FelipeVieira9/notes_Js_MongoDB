@@ -172,3 +172,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('wait_server').innerHTML = `Error: ${error}`
     }
 })
+
+// DELETE ACCOUNT BUTTON
+document.getElementById('delete_forever_svg').addEventListener('click', async () => {
+    if (confirm("Do you really want to delete your account?")) {
+        console.log("DELETAR");
+        const res = await fetch("/notes/delete", {method: 'DELETE'});
+        window.location.href = 'http://localhost:8080';
+    } else {
+        console.log("CANCELAR");
+    }
+})

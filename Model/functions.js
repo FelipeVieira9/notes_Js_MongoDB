@@ -8,8 +8,7 @@ require('dotenv').config({path: '../.env'});
  * @return {Promise} Hashed password
  */
 const hashPassword = async (password) => {
-    const hashPass = await hash(password, 8);
-    return hashPass;
+    return await hash(password, 8);;
 }
 
 /**
@@ -29,7 +28,8 @@ const createAndSavePerson = async ({login, password}) => {
         throw "Login inválido"
     }
     
-    let user = await new User({login: login, password: hashPassword(password)});
+    let user = await new User({login: login, password: await hashPassword(password)});
+    
     let loginExist = await User.findOne({login: login}).exec();
 
     if (loginExist) {
@@ -49,6 +49,15 @@ const createAndSavePerson = async ({login, password}) => {
 const findOnePerson = async ({login}) => {
     return await User.findOne({login: login}).exec();
 }
+
+/**
+ * Delete the user
+ * @param {string} login
+ * @returns {Promise}
+ */
+const deleteThisPerson = async (login) => {
+    return await User.deleteOne({login: login}).exec();
+} 
 
 /**
  * (PUT) -> This function put a new note on mongoDB on the user with the same login
@@ -159,4 +168,4 @@ const decrypt = (encrypted, iv) => {
     return plainText;
 }
 
-module.exports = { createAndSavePerson, hashPassword, findOnePerson, comparePassword, postNote, ediNote, deleteNote, encrypt, decrypt};
+module.exports = { createAndSavePerson, hashPassword, findOnePerson, comparePassword, postNote, ediNote, deleteNote, encrypt, decrypt, deleteThisPerson};
