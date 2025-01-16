@@ -87,6 +87,7 @@ app.get('/checkLogin', (req, res, next) => {
 
 app.get('/notes', (req, res, next) => {
     const token = req.cookies.token;
+    console.log(token);
     console.log('/notes');
 
 
@@ -102,7 +103,12 @@ app.get('/notes', (req, res, next) => {
 app.put('/notes/addNote', async (req, res, next) => {
     console.log('Recebido na rota notes/addNote')
     const tokenOld = req.cookies.token;
-    const { title, note, date} = req.body; 
+    const { title, note, date} = req.body;
+    if (title === undefined|| note === undefined || date === undefined) {
+        res.status(401);
+        next();
+        return;
+    }
     if (title.length === 0 || note.length === 0) {
         res.status(401).redirect('/notes');
         return;
@@ -120,8 +126,8 @@ app.put('/notes/addNote', async (req, res, next) => {
         console.log(user);
     } catch (error) {
         console.log(error);
-        res.clearCookie("token");
         res.status(401);
+        console.log("enviando error 401");
         next();
         return;
     }
